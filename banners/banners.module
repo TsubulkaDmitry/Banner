@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * Implement hook_node_view()
+ *
+ * @param $node
+ */
+
+function banners_node_view ($node){
+  global $base_url;
+  if ($node->type == 'banner'){
+    $arch = archiver_get_archiver('sites/default/files/banners/'.$node->field_file['und'][0]['filename']); //- получает экземпляр соответствующего класса в зависимости от типа архива $file.
+    $arch->extract($base_url.'/banners/'.$node->field_file['und'][0]['fid']);//- выкладывает архив в указанную $dir директорию.
+    $html_url = str_replace('.zip','.html',$base_url.'/banners/'.$node->field_file['und'][0]['fid'].'/'.$node->field_file['und'][0]['filename']);
+
+    $node->content['frame'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'iframe',
+      '#attributes' => [
+        'width' => $node->field_width['und'][0]['value'],
+        'height' => $node->field_height['und'][0]['value'],
+        'frameborder' => 0,
+        'scrolling' => 'no',
+        'src' => $html_url,
+      ],
+      '#value' => $node->nid,
+    ];
+
+    $banner_code = $node->content['frame'];
+    $banner_code = drupal_render($banner_code);
+    $node->content['code'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'pre',
+      '#value' => htmlentities($banner_code),
+    ];
+  }
+
+}
