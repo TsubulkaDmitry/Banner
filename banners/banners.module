@@ -1,5 +1,5 @@
 <?php
-
+define("EXTRACT_PATH_FILES", 'banners');
 /**
  * Implement hook_node_view()
  *
@@ -10,8 +10,8 @@ function banners_node_view ($node){
   global $base_url;
   if ($node->type == 'banner'){
     $arch = archiver_get_archiver('sites/default/files/banners/'.$node->field_file['und'][0]['filename']); //- получает экземпляр соответствующего класса в зависимости от типа архива $file.
-    $arch->extract($base_url.'/banners/'.$node->field_file['und'][0]['fid']);//- выкладывает архив в указанную $dir директорию.
-    $html_url = str_replace('.zip','.html',$base_url.'/banners/'.$node->field_file['und'][0]['fid'].'/'.$node->field_file['und'][0]['filename']);
+    $arch->extract(drupal_get_path('module','banners').'/'.$node->field_file['und'][0]['fid']);//- выкладывает архив в указанную $dir директорию.
+    $html_url = str_replace('.zip','.html',$base_url.'/'.drupal_get_path('module','banners').'/'.$node->field_file['und'][0]['fid'].'/'.$node->field_file['und'][0]['filename']);
 
     $node->content['frame'] = [
       '#type' => 'html_tag',
@@ -26,13 +26,14 @@ function banners_node_view ($node){
       '#value' => $node->nid,
     ];
 
-    $banner_code = $node->content['frame'];
-    $banner_code = drupal_render($banner_code);
+    $banner_view = $node->content['frame'];
+    $banner_view = drupal_render($banner_view);
     $node->content['code'] = [
       '#type' => 'html_tag',
       '#tag' => 'pre',
-      '#value' => htmlentities($banner_code),
+      '#value' => htmlentities($banner_view),
     ];
+
   }
 
 }
