@@ -28,9 +28,8 @@ define("EXTRACT_PATH_FILES", 'banners');
     $query->propertyCondition('status', 1);
     $query->propertyCondition('type', 'banner');
     $result = $query->execute();
-    $nodes = node_load_multiple(array_keys($result['node']));
-
-    dpm($nodes);
+  
+   // dpm($result);
 
     return $base_url;
 
@@ -42,12 +41,21 @@ define("EXTRACT_PATH_FILES", 'banners');
  * @param $node
  */
 
-function banners_node_view ($node){
-
+function banners_node_view ($node, $view_mode, $langcode){
+  //return dpm($node->field_file['und'][0]['filename']);
   global $base_url;
   if ($node->type == 'banner'){
-    $arch = archiver_get_archiver('sites/default/files/banners/'.$node->field_file['und'][0]['filename']); //- получает экземпляр соответствующего класса в зависимости от типа архива $file.
-    $arch->extract(drupal_get_path('module','banners').'/'.$node->field_file['und'][0]['fid']);//- выкладывает архив в указанную $dir директорию.
+
+    $zip = new ZipArchive(); //Создаём объект для работы с ZIP-архивами
+
+    if ($zip->open('sites/default/files/banners/'.$node->field_file['und'][0]['filename']) === true) {
+      $zip->extractTo(drupal_get_path('module','banners').'/'.$node->field_file['und'][0]['fid']); //Извлекаем файлы в указанную директорию
+      $zip->close();
+    }
+    else{
+      drupal_set_message("У указанной дирректории архива нет", "error");
+    }
+
     $html_url = str_replace('.zip','.html',$base_url.'/'.drupal_get_path('module','banners').'/'.$node->field_file['und'][0]['fid'].'/'.$node->field_file['und'][0]['filename']);
 
     $node->content['frame'] = array(
