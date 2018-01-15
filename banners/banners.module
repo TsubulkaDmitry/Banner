@@ -48,10 +48,9 @@ function banners_node_view ($node, $view_mode, $langcode){
     require_once('pclzip.lib.php');
 
     $archive = new PclZip('sites/default/files/banners/'.$node->field_file['und'][0]['filename']);
-
+    $archive->extract(PCLZIP_OPT_PATH, drupal_get_path('module','banners').'/'.$node->field_file['und'][0]['fid']);
+    $archive->extract(PCLZIP_OPT_SET_CHMOD, 0777);
     $html_url = str_replace('.zip','.html',$base_url.'/'.drupal_get_path('module','banners').'/'.$node->field_file['und'][0]['fid'].'/'.$node->field_file['und'][0]['filename']);
-    $list = $archive->extract(PCLZIP_OPT_PATH, drupal_get_path('module','banners').'/'.$node->field_file['und'][0]['fid']);
-    $list = $archive->extract(PCLZIP_OPT_SET_CHMOD, 0777);
 
     $node->content['frame'] = array(
       '#type' => 'html_tag',
